@@ -8,18 +8,6 @@ filters:
 engine: knitr
 ---
 
-```markdown
-{{{< mkgallery articles/imgs >}}}
-```
-
-{{< mkgallery articles/imgs >}}
-
-The version of Quarto built-in Pandoc and Lua:
-
-```{bash}
-quarto pandoc --version 2>&1 | head -3
-```
-
 ## Instalation
 
 To use the `mkgallery` extension in your Quarto project, run this command in the terminal from the project's working directory.
@@ -38,14 +26,26 @@ filters:
 
 ## Using
 
-To create a card using the `mkgallery` shortcode, write the shortcode directive like this:
+To put images in the `articles/imgs/` directory on the document by `mkgallery` shortcode, write Quarto shortcode directive like this.
 
 ```markdown
 {{{< mkgallery articles/imgs >}}}
 ```
 
+:::{.border .p-3}
+{{< mkgallery articles/imgs >}}
+:::
+
 ## Example
 
-Here is the source code for a minimal example: [example.qmd](https://github.com/t-arae/mkgallery/articles/example.qmd).
+Here is the source code for a minimal example: [example.qmd](https://github.com/t-arae/mkgallery/blob/main/articles/example.qmd).
 
 The rendered version is available [here](https://t-arae.quarto.pub/mkgallery/).
+
+## Version info
+
+The version of Quarto built-in Pandoc and Lua:
+
+```{bash}
+quarto pandoc --version 2>&1 | head -3
+```

@@ -1,8 +1,9 @@
 ---
-title: "`mkgallery` example"
+title: "`mkgallery` examples"
 toc: true
 filters:
   - t-arae/mkgallery
+lightbox: true
 ---
 
 `mkgallery` shortcode makes easy to embed images in the specified directory.
@@ -15,7 +16,7 @@ To use `mkgallery` extension in your Quarto project, run this command in termina
 quarto add t-arae/mkgallery
 ```
 
-and then, apply blogcard filter by adding this lines into your yaml header of .qmd file.
+and then, apply `mkgallery` filter by adding this lines into your yaml header of .qmd file.
 
 ```yaml
 filters:
@@ -23,7 +24,8 @@ filters:
 ```
 
 # Basic usage
-To make a card by blogcard shortcode, write shortcode directive like this.
+
+To put images in the `imgs/` directory on the document by `mkgallery` shortcode, write Quarto shortcode directive like this.
 
 ```markdown
 {{{< mkgallery imgs >}}}
@@ -31,7 +33,10 @@ To make a card by blogcard shortcode, write shortcode directive like this.
 
 {{< mkgallery imgs >}}
 
-# Specify file extension(s)
+# File extension(s)
+
+You can specify the image file extensions via `ext` argument.
+The default value of the `ext` is `"png,jpeg,jpg"`.
 
 ```markdown
 {{{< mkgallery imgs ext=png >}}}
@@ -39,7 +44,11 @@ To make a card by blogcard shortcode, write shortcode directive like this.
 
 {{< mkgallery imgs ext=png >}}
 
-# Specify Header level
+# Header level
+
+The `mkgallery` shortcode puts images on the document, and also sets image file names as headers.
+The default header level is two.
+You can change the header level through the `hd_lev` argument.
 
 ```markdown
 {{{< mkgallery imgs ext=png hd_lev=3 >}}}
