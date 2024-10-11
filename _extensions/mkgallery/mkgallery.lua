@@ -45,7 +45,10 @@ return {
       local blocks = {}
       for fname, img_path in pairs(images) do
         print(fname)
-        local image_block = pandoc.Div({pandoc.Header(hd_lev, fname, {id = fname}), pandoc.Image({}, img_path)})
+        local image_block = pandoc.Div({
+          pandoc.Header(hd_lev, fname, {id = fname}),
+          pandoc.Image({}, img_path, fname, {style = "width: 40%", class = "lightbox"})
+        })
         table.insert(blocks, image_block)
       end
       return blocks
