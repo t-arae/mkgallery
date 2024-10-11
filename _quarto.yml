@@ -1,0 +1,34 @@
+project:
+  type: website
+  render:
+    - "*.qmd"
+    - "!README.qmd"
+
+website:
+  title: "mkgallery"
+  description: "mkgallery shortcode, a quarto shortcode extension, shortcode makes easy to embed images in the specified directory."
+  favicon: "favicon.ico"
+  image: "beko.jpeg"
+  site-url: 'https://t-arae.quarto.pub/mkgallery/'
+  site-path: '/'
+  navbar:
+    left:
+      - href: index.qmd
+        text: About
+      - text: Usage
+        menu:
+          - href: articles/example.qmd 
+            text: Example
+    right:
+      - icon: github
+        href: https://github.com/t-arae/mkgallery
+  open-graph:
+    image: "beko.jpeg"
+
+format:
+  html:
+    theme:
+      light: flatly
+  typst: default
+
+editor: source
