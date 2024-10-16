@@ -29,6 +29,7 @@ format:
   html:
     theme:
       light: flatly
-  typst: default
+  typst:
+    columns: 2
 
 editor: source
