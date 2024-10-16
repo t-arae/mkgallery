@@ -8,7 +8,7 @@ website:
   title: "mkgallery"
   description: "mkgallery shortcode, a quarto shortcode extension, shortcode makes easy to embed images in the specified directory."
   favicon: "favicon.ico"
-  image: "beko.jpeg"
+  image: "logo.png"
   site-url: 'https://t-arae.quarto.pub/mkgallery/'
   site-path: '/'
   navbar:
@@ -23,7 +23,7 @@ website:
       - icon: github
         href: https://github.com/t-arae/mkgallery
   open-graph:
-    image: "beko.jpeg"
+    image: "logo.jpeg"
 
 format:
   html:
