@@ -145,7 +145,7 @@ local function build_img_block_wrap(images, group_id, width)
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({}, img_path, fname, {class = "lightbox", group = group_id}),
+        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
         pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
       },
       {style = st}
@@ -163,7 +163,7 @@ local function build_img_block_scroll(images, group_id, width)
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({}, img_path, fname, {class = "lightbox", group = group_id}),
+        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
         pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
       },
       {style = st}
@@ -181,7 +181,7 @@ local function build_img_block_list(images, group_id, width)
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({}, img_path, fname, {class = "lightbox", group = group_id}),
+        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
         pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
       },
       {style = st}
