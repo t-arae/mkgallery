@@ -33,8 +33,6 @@ To display images from the `articles/imgs/` directory in your Quarto document us
 
 This will embed all images from the `articles/imgs/` directory onto your document.
 
-{{< mkgallery articles/imgs >}}
-
 ## Example
 
 You can find the source code for several examples of the `mkgallery` shortcode usage at the following link: [example.qmd](https://github.com/t-arae/mkgallery/blob/main/articles/example.qmd).
