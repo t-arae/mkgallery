@@ -23,7 +23,7 @@ website:
       - icon: github
         href: https://github.com/t-arae/mkgallery
   open-graph:
-    image: "logo.jpeg"
+    image: "logo.png"
 
 format:
   html:
