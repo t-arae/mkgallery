@@ -1,8 +1,8 @@
 
 -- This function returns an iterator that traverses a table's elements
 -- in the order of the table's keys, sorted by the optional comparison function f.
----@param t The table whose keys will be iterated.
----@param f (Optional) A comparison function to control the sorting order of the keys.
+---@param t table The table whose keys will be iterated.
+---@param f? function (Optional) A comparison function to control the sorting order of the keys.
 local function pairsByKeys(t, f)
   -- Create an empty array to store the table's keys.
   -- Insert all keys from the table t into the array a.
@@ -29,11 +29,11 @@ local function pairsByKeys(t, f)
 end
 
 --- Parse keyword arguments
----@param kwargs A table containing key-value pairs of keyward arguments.
----@param logger A logger function.
----@return search_ext
----@return group 
----@return width
+---@param kwargs table A table containing key-value pairs of keyward arguments.
+---@param logger function A logger function.
+---@return string search_ext
+---@return string group 
+---@return string width
 local function set_kwargs(kwargs, logger)
   -- Parse `ext` kwargs.
   -- If the key doesn't exist (i.e. ""), set the default value to 'png,jpeg,jpg'.
@@ -58,11 +58,11 @@ local function set_kwargs(kwargs, logger)
 end
 
 --- Parse positional arguments
----@param args A table containing positional arguments.
----@param wd A string representing the path to the working directory.
----@param logger A logger function.
----@return dir A string representing the image directory.
----@return gallery_type A string representing the gallery layout.
+---@param args table A table containing positional arguments.
+---@param wd string A string representing the path to the working directory.
+---@param logger function A logger function.
+---@return string dir A string representing the image directory.
+---@return string gallery_type A string representing the gallery layout.
 local function set_args(args, wd, logger)
   -- Get the number of arguments passed in the args table.
   local len_args = #args
@@ -89,9 +89,9 @@ local function set_args(args, wd, logger)
 end
 
 --- Search image files from directory.
----@param dir A string representing the image directory.
----@param search_ext A string representing the set of file extensions to search.
----@return files A table of files that matched the desired extensions.
+---@param dir string A string representing the image directory.
+---@param search_ext string A string representing the set of file extensions to search.
+---@return table files A table of files that matched the desired extensions.
 local function search_img_files(dir, search_ext)
   -- Import the LPeg library, which is used for pattern matching.
   local lpeg = require"lpeg"
@@ -141,56 +141,68 @@ end
 
 local function build_img_block_wrap(images, group_id, width)
   local st = "flex: 0 0 " .. width .. "; max-width: " .. width .. ";"
+  
+  local blocksAttr = pandoc.Attr("", {}, {style = "display: flex; flex-wrap: wrap; gap: 20px; overflow-x: auto;"})
+  local blockAttr = pandoc.Attr("", {}, {style = st})
+  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
+  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+
   local blocks = {}
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
-        pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+        pandoc.Image({fname}, img_path, fname, imgAttr),
+        pandoc.Div(fname, nameAttr)
       },
-      {style = st}
+      blockAttr
     )
     table.insert(blocks, image_block)
   end
-  return pandoc.Div(blocks, {
-    style = "display: flex; flex-wrap: wrap; gap: 20px; overflow-x: auto;"
-  })
+  return pandoc.Div(blocks, blocksAttr)
 end
 
 local function build_img_block_scroll(images, group_id, width)
   local st = "flex: 0 0 " .. width .. "; max-width: " .. width .. ";"
+
+  local blocksAttr = pandoc.Attr("", {}, {style = "display: flex; gap: 20px; overflow-x: auto;"})
+  local blockAttr = pandoc.Attr("", {}, {style = st})
+  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
+  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+
   local blocks = {}
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
-        pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+        pandoc.Image({fname}, img_path, fname, imgAttr),
+        pandoc.Div(fname, nameAttr)
       },
-      {style = st}
+      blockAttr
     )
     table.insert(blocks, image_block)
   end
-  return pandoc.Div(blocks, {
-    style = "display: flex; gap: 20px; overflow-x: auto;"
-  })
+  return pandoc.Div(blocks, blocksAttr)
 end
 
 local function build_img_block_list(images, group_id, width)
   local st = "min-width " .. width .. "; max-width: " .. width .. ";"
+
+  local blocksAttr = pandoc.Attr("", {}, {style = "overflow-x: auto;"})
+  local blockAttr = pandoc.Attr("", {}, {style = st})
+  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
+  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+
   local blocks = {}
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({fname}, img_path, fname, {class = "lightbox", group = group_id}),
-        pandoc.Div(fname, {id = fname, style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+        pandoc.Image({fname}, img_path, fname, imgAttr),
+        pandoc.Div(fname, nameAttr)
       },
-      {style = st}
+      blockAttr
     )
     table.insert(blocks, image_block)
   end
-  return pandoc.Div(blocks, {
-    style = "overflow-x: auto;"
-  })
+  return pandoc.Div(blocks, blocksAttr)
 end
 
 return {
@@ -217,7 +229,7 @@ return {
     elseif gallery_type == "wrap" then
       return build_img_block_wrap(files, group_id, width)
     elseif gallery_type == "list" then
-      return build_img_block_list(files, group_id, width, hd_lev)
+      return build_img_block_list(files, group_id, width)
     else
       error()
     end
