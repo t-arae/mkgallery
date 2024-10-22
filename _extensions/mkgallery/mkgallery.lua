@@ -28,33 +28,37 @@ local function pairsByKeys(t, f)
   return iter
 end
 
+local function get_arg_value(args_table, key, default)
+  local value = pandoc.utils.stringify(args_table[key] or "")
+  return value ~= "" and value or default
+end
+
 --- Parse keyword arguments
 ---@param kwargs table A table containing key-value pairs of keyward arguments.
 ---@param logger function A logger function.
 ---@return string search_ext
 ---@return string group 
 ---@return string width
-local function set_kwargs(kwargs, logger)
-  -- Parse `ext` kwargs.
-  -- If the key doesn't exist (i.e. ""), set the default value to 'png,jpeg,jpg'.
-  local search_ext = pandoc.utils.stringify(kwargs["ext"])
-  search_ext = search_ext ~= "" and search_ext or 'png,jpeg,jpg'
+---@return string height
+local function parse_kwargs(kwargs, logger)
+  -- Parse `ext` kwargs. (default: "png,jpeg,jpg")
+  local search_ext = get_arg_value(kwargs, "ext", "png,jpeg,jpg")
   logger("image ext: " .. search_ext)
 
-  -- Parse `group` kwargs.
-  -- If the key doesn't exist (i.e. ""), set the default value to 'all'.
-  local group = pandoc.utils.stringify(kwargs["group"])
-  group = group ~= "" and group or 'all'
+  -- Parse `group` kwargs. (default: "all")
+  local group = get_arg_value(kwargs, "group", "all")
   logger("group: " .. group)
 
-  -- Parse `width` kwargs.
-  -- If the key doesn't exist (i.e. ""), set the default value to 'calc(33% - 20px)'.
-  local width = pandoc.utils.stringify(kwargs["width"])
-  width = width ~= "" and width or 'calc(33% - 20px)'
+  -- Parse `width` kwargs. (default: "calc(33% - 20px)")
+  local width = get_arg_value(kwargs, "width", "calc(33% - 20px)")
   logger("width: " .. width)
 
+  -- Parse `height` kwargs. (default: "")
+  local height = get_arg_value(kwargs, "height", "")
+  logger("height: " .. height)
+
   -- Return the final values for search_ext, group, and width.
-  return search_ext, group, width
+  return search_ext, group, width, height
 end
 
 --- Parse positional arguments
@@ -63,26 +67,16 @@ end
 ---@param logger function A logger function.
 ---@return string dir A string representing the image directory.
 ---@return string gallery_type A string representing the gallery layout.
-local function set_args(args, wd, logger)
-  -- Get the number of arguments passed in the args table.
-  local len_args = #args
-
-  -- If at least one argument is provided, set the first argument to `dir`.
-  -- And make the path relative to the `wd`.
+local function parse_args(args, wd, logger)
+  -- Set the first argument to `dir`, and make the path relative to the `wd`.
   local dir = ""
-  if len_args > 0 then
+  if #args > 0 then
     dir = pandoc.path.make_relative(args[1], wd, true)
   end
   logger("image dir: " .. dir)
 
-  -- If at least two argument is provided, set the second argument to `gallery_type`.
-  -- If `gallery_type` is empty (or less than two argument are provided),
-  -- then set a default value of 'scroll' to `gallery_type`.
-  local gallery_type = ""
-  if len_args > 1 then
-    gallery_type = pandoc.utils.stringify(args[2])
-  end
-  gallery_type = gallery_type ~= "" and gallery_type or 'scroll'
+  -- Set the second argument to `gallery_type`. (default: "scroll")
+  local gallery_type = get_arg_value(args, 2, "scroll")
   logger("gallery_type: " .. gallery_type)
 
   return dir, gallery_type
@@ -217,10 +211,9 @@ return {
     local wd = pandoc.system.get_working_directory()
     logger("working dir: " .. wd)
 
-    -- keyward args
-    local search_ext, group_id, width = set_kwargs(kwargs, logger)
-    -- args
-    local dir, gallery_type = set_args(args, wd, logger)
+    -- Parse args and keyward args
+    local dir, gallery_type = parse_args(args, wd, logger)
+    local search_ext, group_id, width, height = parse_kwargs(kwargs, logger)
 
     local files = search_img_files(dir, search_ext)
 
