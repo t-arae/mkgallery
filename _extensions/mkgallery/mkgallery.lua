@@ -133,70 +133,70 @@ local function search_img_files(dir, search_ext)
 end
 
 
-local function build_img_block_wrap(images, group_id, width)
-  local st = "flex: 0 0 " .. width .. "; max-width: " .. width .. ";"
-  
-  local blocksAttr = pandoc.Attr("", {}, {style = "display: flex; flex-wrap: wrap; gap: 20px; overflow-x: auto;"})
-  local blockAttr = pandoc.Attr("", {}, {style = st})
-  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
-  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
-
-  local blocks = {}
-  for fname, img_path in pairsByKeys(images) do
-    local image_block = pandoc.Div(
-      {
-        pandoc.Image({fname}, img_path, fname, imgAttr),
-        pandoc.Div(fname, nameAttr)
-      },
-      blockAttr
-    )
-    table.insert(blocks, image_block)
+local function build_style(properties)
+  local style = ""
+  for property, value in pairsByKeys(properties) do
+    style = style .. string.format(" %s: %s;", property, value)
   end
-  return pandoc.Div(blocks, blocksAttr)
+  return style
 end
 
-local function build_img_block_scroll(images, group_id, width)
-  local st = "flex: 0 0 " .. width .. "; max-width: " .. width .. ";"
-
-  local blocksAttr = pandoc.Attr("", {}, {style = "display: flex; gap: 20px; overflow-x: auto;"})
-  local blockAttr = pandoc.Attr("", {}, {style = st})
-  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
-  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
-
-  local blocks = {}
-  for fname, img_path in pairsByKeys(images) do
-    local image_block = pandoc.Div(
-      {
-        pandoc.Image({fname}, img_path, fname, imgAttr),
-        pandoc.Div(fname, nameAttr)
-      },
-      blockAttr
-    )
-    table.insert(blocks, image_block)
+local function create_attrs(is_img, additional_classes, styles)
+  --local classes = is_img and {"lightbox", "border"} or {"border"}
+  local classes = is_img and {"lightbox"} or {}
+  if additional_classes then
+    for _, class in ipairs(additional_classes) do
+      table.insert(classes, class)
+    end
   end
-  return pandoc.Div(blocks, blocksAttr)
+  return pandoc.Attr("", classes, {style = styles})
 end
 
-local function build_img_block_list(images, group_id, width)
-  local st = "min-width " .. width .. "; max-width: " .. width .. ";"
+local function build_gallery(images, group_id, width, height, gallery_type)
+  local gallery_styles = { ["overflow-x"] = "auto" }
+  if gallery_type == "scroll" or gallery_type == "wrap" then
+    gallery_styles["display"] = "flex"
+    gallery_styles["gap"] = "20px"
+  end
+  if gallery_type == "wrap" then
+    gallery_styles["flex-wrap"] = "wrap"
+  end
+  local gallery_attr = create_attrs(false, nil, build_style(gallery_styles))
 
-  local blocksAttr = pandoc.Attr("", {}, {style = "overflow-x: auto;"})
-  local blockAttr = pandoc.Attr("", {}, {style = st})
-  local imgAttr = pandoc.Attr("", {"lightbox"}, {group = group_id})
-  local nameAttr = pandoc.Attr("", {}, {style = "overflow: hidden; text-overflow: ellipsis; max-width: 100%;"})
+  local img_styles = {
+    ["width"] = "100%",
+    ["object-fit"] = "contain"
+  }
+  if height ~= "" then
+    img_styles["height"] = height
+    img_styles["width"] = nil
+  end
+  local img_attr = create_attrs(true, nil, build_style(img_styles))
+  img_attr.attributes.group = group_id
+
+  local block_styles = {["flex"] = "none"}
+  if width ~= "" then
+    block_styles["width"] = width
+    block_styles["display"] = "flex"
+    block_styles["flex-direction"] = "column"
+  end
+  local block_attr = create_attrs(false, nil, build_style(block_styles))
+
+  local name_attr = create_attrs(false, nil, "overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin-top: auto;")
 
   local blocks = {}
   for fname, img_path in pairsByKeys(images) do
     local image_block = pandoc.Div(
       {
-        pandoc.Image({fname}, img_path, fname, imgAttr),
-        pandoc.Div(fname, nameAttr)
+        pandoc.Image({fname}, img_path, fname, img_attr),
+        pandoc.Div(fname, name_attr)
       },
-      blockAttr
+      block_attr
     )
     table.insert(blocks, image_block)
   end
-  return pandoc.Div(blocks, blocksAttr)
+
+  return pandoc.Div(blocks, gallery_attr)
 end
 
 return {
@@ -217,14 +217,6 @@ return {
 
     local files = search_img_files(dir, search_ext)
 
-    if gallery_type == "scroll" then
-      return build_img_block_scroll(files, group_id, width)
-    elseif gallery_type == "wrap" then
-      return build_img_block_wrap(files, group_id, width)
-    elseif gallery_type == "list" then
-      return build_img_block_list(files, group_id, width)
-    else
-      error()
-    end
+    return build_gallery(files, group_id, width, height, gallery_type)
   end
 }
